@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: dev1
+  application:
+    name: eureka1-server
+---
+spring:
+  profiles: dev1
+server:
+  port: 8000  #端口
+---
+spring:
+  profiles: dev2
+server:
+    port: 9000  #端口
+---
+#配置eureka server
+eureka:
+  client:
+    register-with-eureka: true  #是否将自己注册到注册中心(默认为true)
+    fetch-registry: true  #是否要从eureka获取注册信息
+    service-url:  #配置暴露给eureka Client的请求地址
+#      defaultZone: http://127.0.0.1:9000/eureka/  #第二个端口为8000的注册中心服务要去第一个端口为9000的注册中心注册
+      defaultZone: http://127.0.0.1:8000/eureka/,http://127.0.0.1:9000/eureka/  #第二个端口为8000的注册中心服务要去第一个端口为9000的注册中心注册
+  server:
+    enable-self-preservation: true #关闭自我保护默认值是true
+    eviction-interval-timer-in-ms: 4000 #剔除服务的时间间隔(单位毫秒),清理无效节点时间间隔,默认60000毫秒即60秒

@@ -1,0 +1,168 @@
+server:
+  port: 8088 #服务端口
+spring:
+  zipkin:
+    base-url: http://127.0.0.1:9414/ #zipkin server的请求地址
+    sender:
+      type: web #请求方式,默认以http的方式向zipkin server发送追踪数据
+  sleuth:
+    sampler:
+      probability: 1.0 #采样的百分比
+  application:
+    name: api-gateway #指定服务名
+  #    配置springCloudgateway路由
+  redis:
+    host: localhost
+    pool: 6379
+    database: 0
+  cloud:
+    gateway:
+      routes:
+        #        配置路由:路由id,路由到微服务的uri,断言:(判断条件)
+        - id: product-service #保持唯一
+#          uri: http://127.0.0.1:9001  #目标微服务请求地址
+          uri: lb://service-product  #目标微服务请求地址
+          predicates:
+#            - Path=/product/**  #路由条件  path路由匹配条件
+            - Path=/product-service/**   #如果不进行下面的配置,转发地址是:http://127.0.0.1:9001/product-service/**
+          filters:  #配置一个路由过滤器  http://localhost:8080/product-service/product/findById/1  -->http://localhost:8080/product/findById/1
+#            - name: RequestRateLimiter
+##              #RequestRateLimiter:springClould gateway提供的限流过滤器
+##               源码:RequestRateLimiterGatewayFilterFactory.class
+#              args:
+#                # 使用Spring EL表达式从容器中获取对象pathKeyResolver
+#                key-resolver: '#{@pathKeyResolver}'
+#                # 令牌桶每秒填充平均速率
+#                redis-rate-limiter.replenishRate: 1
+#                # 令牌桶的上限
+#                redis-rate-limiter.burstCapacity: 3
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}   #路径重写过滤器
+        - id: order-service #保持唯一
+            #          uri: http://127.0.0.1:9001  #目标微服务请求地址
+          uri: lb://service-order  #目标微服务请求地址
+          predicates:
+            #            - Path=/product/**  #路由条件  path路由匹配条件
+            - Path=/order-service/**   #如果不进行下面的配置,转发地址是:http://127.0.0.1:9001/product-service/**
+          filters:
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}   #路径重写过滤器
+#    配置根据微服务名称进行路由转发    http://localhost:8080/service-product/product/findById/1-->http://localhost:8080/product/findById/1
+#      discovery:
+#        locator:
+#          enabled: true  #开启根据服务名称自动转发
+#          lower-case-service-id: true  #微服务名称以小写样式呈现
+eureka:
+  client:
+    service-url:
+#      defaultZone: http://localhost:9000/eureka/
+      defaultZone: http://localhost:9000/eureka/,http://localhost:8000/eureka/
+      registry-fetch-interval-seconds: 5 # 获取服务列表的周期：5s
+  instance:
+    prefer-ip-address: true #使用IP地址注册
+    ip-address: 127.0.0.1
+#---
+##路由断言之后匹配
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: after_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - After=xxxxx
+#---
+##路由断言之前匹配
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: before_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Before=xxxxx
+#---
+##路由断言之间匹配
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: between_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Between=xxxxx,xxxxxx
+#---
+##路由断言Cookie匹配,此predicate匹配给定名称(chocolate)和正则表达式(ch.p)
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: cookie_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Cookie=chocolate, ch.p
+#---
+##路由断言Header匹配，header名称匹配X-Request-Id,且正则表达式匹配\d+
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: header_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Header=X-Request-Id, \d+
+#---
+##路由断言匹配Host匹配，匹配下面Host主机列表,**代表可变参数
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: header_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Host=**.somehost.org,**.anotherhost.org
+#---
+##路由断言Method匹配，匹配的是请求的HTTP方法
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: header_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Method=GET
+#---
+##路由断言匹配，{segment}为可变参数
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: header_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Path=/foo/{segment},/bar/{segment}
+#---
+##路由断言Query匹配，将请求的参数param(baz)进行匹配，也可以进行regexp正则表达式匹配 (参数包含 foo,并且foo的值匹配ba.)\
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: header_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - Query=baz 或 Query=foo,ba.
+#---
+##路由断言RemoteAddr匹配，将匹配192.168.1.1~192.168.1.254之间的ip地址，其中24为子网掩码位 数即255.255.255.0
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: header_route
+#          uri: https://xxxx.com
+#          predicates:
+#            - RemoteAddr=192.168.1.1/24
+#
+#---
+logging:
+  level:
+    root: INFO
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.cloud.sleuth: DEBUG

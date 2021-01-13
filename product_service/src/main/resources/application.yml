@@ -1,0 +1,48 @@
+server:
+  port: 9001  #端口
+spring:
+  zipkin:
+    base-url: http://127.0.0.1:9414/ #zipkin server的请求地址
+    sender:
+      type: web #请求方式,默认以http的方式向zipkin server发送追踪数据
+  sleuth:
+    sampler:
+      probability: 1.0 #采样的百分比
+  application:
+    name: service-product   #服务名称
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/shop?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: admin123
+  jpa:
+    database: MySQL
+    show-sql: true
+    open-in-view: true
+    #配置eureka
+eureka:
+  client:
+    service-url:
+#      defaultZone: http://localhost:9000/eureka/  #多个eurekaserver之间通过","分割
+      defaultZone: http://localhost:9000/eureka/,http://localhost:8000/eureka/  #多个eurekaserver之间通过","分割
+  instance:
+    prefer-ip-address: true #使用IP地址注册
+#    instance-id: ${spring.cloud.client.ip-address}:${server.port}   #向注册中心注册我们的IP和端口
+    lease-renewal-interval-in-seconds: 5    #设置向注册中心发送心跳的时间,默认是30秒
+    lease-expiration-duration-in-seconds: 15  #设置预约到期时间默认是90秒(意思是如果发送心跳的间隔超过90秒,注册中心就认为我宕机了,就会将我从服务列表剔除)
+    metadata-map:
+      mykey: myvalue
+name: test1   #随便配置一个属性,过会用来测试
+#apollo配置:
+apollo:
+  bootstrap:
+    enabled: true  #开启apollo(namespace:工作空间)
+  meta: http://127.0.0.1:8080/  #apollo的注册中心地址
+  cacheDir: D:\cache\apolloCache
+app:
+  id: service-product   #apollo页面创建项目时配置的AppId
+logging:
+  level:
+    root: INFO
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.cloud.sleuth: DEBUG

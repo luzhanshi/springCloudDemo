@@ -1,0 +1,83 @@
+server:
+  port: 9002  #端口
+  tomcat:
+    max-threads: 10
+spring:
+  zipkin:
+    locator:
+      discovery:
+        enabled: true #开启注册中心模式
+    base-url: http://127.0.0.1:9414/ #zipkin server的请求地址
+    sender:
+      type: web #请求方式,默认以http的方式向zipkin server发送追踪数据
+  sleuth:
+    sampler:
+      probability: 1.0 #采样的百分比
+  application:
+    name: service-order   #服务名称
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/shop?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: admin123
+  jpa:
+    database: MySQL
+    show-sql: true
+    open-in-view: true
+eureka:
+  client:
+    service-url:
+#      defaultZone: http://localhost:8000/eureka/
+      defaultZone: http://localhost:9000/eureka/,http://localhost:8000/eureka/
+  instance:
+    prefer-ip-address: true #使用IP地址注册
+
+#修改ribbon的负载均衡策略:  服务名>ribbon>NFLoadBalancerRuleClassName:策略
+#service-product:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule  #随机策略
+#ribbon重试机制配置
+service-product:
+  ribbon:
+    ConnectTimeout: 250 # Ribbon的连接超时时间(毫秒)
+    ReadTimeout: 1000 # Ribbon的数据读取超时时间(毫秒)
+    OkToRetryOnAllOperations: true # 是否对所有操作都进行重试
+    MaxAutoRetriesNextServer: 1 # 切换实例的重试次数
+    MaxAutoRetries: 1 # 对当前(失败)实例的重试次数
+
+#feign:
+#  client:
+#    config:
+#      feignName: ##定义FeginClient的名称
+#        connectTimeout: 5000 # 相当于Request.Options
+#        readTimeout: 5000 # 相当于Request.Options
+## 配置Feign的日志级别，相当于代码配置方式中的Logger
+#        loggerLevel: full
+## Feign的错误解码器，相当于代码配置方式中的ErrorDecoder
+#        errorDecoder: com.example.SimpleErrorDecoder
+## 配置重试，相当于代码配置方式中的Retryer
+#        retryer: com.example.SimpleRetryer
+## 配置拦截器，相当于代码配置方式中的RequestInterceptor
+#        requestInterceptors:
+#          - com.example.FooRequestInterceptor
+#          - com.example.BarRequestInterceptor
+#        decode404: false
+#feign:
+#  compression:
+#    request:
+#      enabled: true # 开启请求压缩
+#      mime-types: text/html,application/xml,application/json # 设置压缩的数据类型
+#      min-request-size: 2048 # 设置触发压缩的大小下限
+feign:
+  client:
+    config:
+      service-product:
+        loggerLevel: FULL
+
+logging:
+  level:
+    #    root: debug
+    cn.itcast.order.feign.ProductFeignClient: debug
+    root: INFO
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.cloud.sleuth: DEBUG
