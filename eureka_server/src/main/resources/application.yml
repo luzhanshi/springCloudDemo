@@ -27,4 +27,4 @@ eureka:
     eviction-interval-timer-in-ms: 4000 #剔除服务的时间间隔(单位毫秒),清理无效节点时间间隔,默认60000毫秒即60秒
 mytest: 111
 value: test
-test3：test
+test3：test3
