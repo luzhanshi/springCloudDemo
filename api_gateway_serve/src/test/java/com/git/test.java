@@ -12,4 +12,5 @@ public class test {
 //    test1第3次修改注释
 //    test1分支第4次提交注释
 //    test分支分支merge from test1之后有一次添加了注释
+//    test1分支制造一句冲突的注释
 }
