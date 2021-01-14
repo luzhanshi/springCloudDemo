@@ -2,7 +2,11 @@ server:
   port: 9001  #端口
 spring:
   zipkin:
-    base-url: http://127.0.0.1:9414/ #zipkin server的请求地址
+    locator:
+      discovery:
+        enabled: true #开启注册中心模式
+    #    base-url: http://127.0.0.1:9414/ #zipkin server的请求地址
+    base-url: http://zipkin # 开启注册中心模式之后可以直接写成“http://zipkin服务名”
     sender:
       type: web #请求方式,默认以http的方式向zipkin server发送追踪数据
   sleuth:
