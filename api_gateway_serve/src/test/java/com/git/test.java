@@ -13,7 +13,6 @@ public class test {
 //    test1分支第4次提交注释
 //    test分支分支merge from test1之后有一次添加了注释
 //    test1分支制造一句冲突的注释
-
-
+//    test分支也修改了和test1同一行的代码制造冲突
 
 }
